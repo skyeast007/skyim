@@ -10,6 +10,7 @@ import (
 
 // StaticHTTPServer 静态服务器
 func StaticHTTPServer() {
+	print(GetStaticDirectory())
 	http.Handle("/", http.FileServer(http.Dir(GetStaticDirectory())))
 	http.ListenAndServe(":8080", nil)
 }
@@ -21,7 +22,7 @@ func GetStaticDirectory() string {
 		log.Fatal(err)
 	}
 	dir = strings.Replace(dir, "\\", "/", -1)
-	return Substr(dir, 0, strings.LastIndex(dir, "/"))
+	return dir + "/static"
 }
 
 //Substr 字符切割

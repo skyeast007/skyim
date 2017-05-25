@@ -58,6 +58,7 @@ func (l *Log) Log(level int, info string, args ...interface{}) {
 	case Fatal:
 		levelString = "Fatal"
 	}
+
 	if level == Fatal {
 		log.Fatalln(levelString, ":", info, "->", args)
 	} else {

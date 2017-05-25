@@ -2,7 +2,6 @@ package im
 
 import (
 	"net/http"
-	"runtime"
 	"time"
 
 	"im/context"
@@ -23,7 +22,7 @@ func StartWebsocketServer(ctx *context.Context) {
 	w := Websocket{ctx: ctx}
 	http.Handle("/", websocket.Handler(w.Handle))
 	ctx.Log.Info("im websocket 服务启动...")
-	if err := http.ListenAndServe(":3001", nil); err != nil {
+	if err := http.ListenAndServe(ctx.Options.WebSoctetAddress, nil); err != nil {
 		ctx.Log.Fatal("websocket端口监听错误:", err)
 	}
 }
@@ -36,7 +35,8 @@ func (w *Websocket) Handle(ws *websocket.Conn) {
 	im.ctx = w.ctx
 	im.ConnType = 1
 	im.ConnTime = time.Now().Unix()
-	go w.messageLoop(im)
+	im.ClientAddress = ws.RemoteAddr()
+	w.messageLoop(im)
 }
 
 //messageLoop 消息循环
@@ -45,11 +45,11 @@ func (w *Websocket) messageLoop(im *Im) {
 	for {
 		var reply string
 		if err = websocket.Message.Receive(im.WebSocketConn, &reply); err != nil {
-			w.ctx.Log.Error("接收消息失败!")
-			runtime.Gosched()
+			//runtime.Gosched()
 			continue
 		} else {
 			w.ctx.Log.Debug("收到消息...")
+			println(reply)
 			// TODO: 执行消息处理
 		}
 	}

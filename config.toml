@@ -3,11 +3,11 @@ log_level=0
 #日志目录，默认std输出
 #log_path=''
 #websocket服务监听地址 "127.0.0.1:3000"
-web_socket_address=":3000"
+web_socket_address=":5000"
 #TCP服务监听地址
-tcp_address=":3001"
+tcp_address=":5001"
 # http服务监听地址
-http_address=":3002"
+http_address=":5002"
 # http静态服务器绝对地址 默认程序执行目录下的 static 目录
 #http_document_root=""
 # redis连接地址

@@ -56,7 +56,7 @@ func NewOption() *Options {
 		configFile = *flagFile
 	}
 	if err != nil {
-		log.Println(err, "将使用默认配置...")
+		log.Println("程序运行目录获取失败:", err, "将使用默认配置...")
 	}
 	o, err = configFileparse(configFile)
 	if err != nil {
@@ -66,13 +66,14 @@ func NewOption() *Options {
 		o.LogLevel = 0
 	}
 	if len(o.LogPath) > 0 {
-		_, err = os.Stat(o.LogPath)
-		if os.IsExist(err) == false {
-			log.Fatalln("日志目录不存在:", err)
+		if _, err = os.Stat(o.LogPath); err != nil {
+			if os.IsExist(err) == false {
+				log.Fatalln("日志目录不存在:", err)
+			}
 		}
-		if os.IsPermission(err) == false {
-			log.Fatalln("日志目录权限不足:", err)
-		}
+		// if os.IsPermission(err) == false {
+		// 	log.Fatalln("日志目录权限不足:", err)
+		// }
 	}
 	if o.WebSoctetAddress == "" {
 		o.WebSoctetAddress = ":3000"
@@ -86,14 +87,14 @@ func NewOption() *Options {
 	if o.HTTPDocumentRoot == "" {
 		o.HTTPDocumentRoot = appPath + "/static"
 	}
-	println(o.HTTPDocumentRoot)
-	_, err = os.Stat(o.HTTPDocumentRoot)
-	if os.IsExist(err) == false {
-		log.Fatalln("HTTP站点根目录不存在:", err)
+	if _, err = os.Stat(o.HTTPDocumentRoot); err != nil {
+		if os.IsExist(err) {
+			log.Fatalln("HTTP站点根目录不存在:", err)
+		}
 	}
-	if os.IsPermission(err) == false {
-		log.Fatalln("HTTP站点根目录权限不足:", err)
-	}
+	// if os.IsPermission(err) == false {
+	// 	log.Fatalln("HTTP站点根目录权限不足:", err)
+	// }
 	if o.RedisAddress == "" {
 		o.RedisAddress = "127.0.0.1:6379"
 	}

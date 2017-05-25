@@ -49,6 +49,8 @@ type Im struct {
 	LastReceiveTime int64
 	//LastSendTime 最近一次发送消息的时间
 	LastSendTime int64
+	//ClientAddress 客户端地址
+	ClientAddress net.Addr
 	//通过TCP连接时建立此项
 	TCP  *TCP
 	User *User

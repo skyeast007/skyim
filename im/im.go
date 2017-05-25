@@ -1,54 +1,55 @@
 package im
 
 import (
-	"log"
-	"net/http"
-	"time"
+	"bufio"
+	"net"
+	"sync"
+
+	"im/context"
 
 	"golang.org/x/net/websocket"
 )
 
-// Client 客户端连接标识
-type Client struct {
-	ID          *websocket.Conn
-	ConnectTime int64
+//User 用户信息
+type User struct {
+	//UID 用户
+	UID int64
+	//Name 用户名
+	Name string
+	//Auth 授权信息
+	Auth *Auth
 }
 
-//ConnectPool 客户端连接池
-var ConnectPool = make([]*Client, 0)
+//TCP 连接信息
+type TCP struct {
+	writeLock sync.RWMutex
+	metaLock  sync.RWMutex
 
-//WebsocketServer websocket服务器
-func WebsocketServer() {
-	go eventPool()
-	log.Println("xxxx")
-	http.Handle("/", websocket.Handler(Handle))
-	log.Println("im websocket 服务启动...")
-	if err := http.ListenAndServe(":3001", nil); err != nil {
-		log.Fatalln("websocket端口监听错误:", err)
-	}
+	Reader *bufio.Reader
+	Writer *bufio.Writer
 }
 
-//Handle 处理
-func Handle(ws *websocket.Conn) {
-	client := Client{ID: ws, ConnectTime: time.Now().Unix()}
-	ConnectPool = append(ConnectPool, &client)
-}
-func eventPool() {
-	//var err error
-	for {
-		for k, client := range ConnectPool {
-			//var reply string
-			println("ws_v:", client)
-			println("ws_k", k)
-			// if err = websocket.Message.Receive(client.Id, &reply); err != nil {
-			// 	log.Println("接收消息失败!")
-			// 	break
-			// }
-			// log.Println("收到消息:", reply)
-			// if err = websocket.Message.Send(client.Id, "你好"); err != nil {
-			// 	log.Println("消息发送失败")
-			// 	break
-			// }
-		}
-	}
+//Im 客户端连接标识包含用户基本信息以及连接信息
+type Im struct {
+	//连接标识
+	ID            int64
+	WebSocketConn *websocket.Conn
+	TCPConn       *net.TCPConn
+	//ConnType 当前连接类型 1:websocket 2:TCP
+	ConnType int8
+
+	//ctx 全局操作对象
+	ctx *context.Context
+	//UserAgent 客户端自述,客户端类型
+	UserAgent string
+
+	//ConnTime 建立连接的时间
+	ConnTime int64
+	//LastReceiveTime 最近一次收到消息的时间
+	LastReceiveTime int64
+	//LastSendTime 最近一次发送消息的时间
+	LastSendTime int64
+	//通过TCP连接时建立此项
+	TCP  *TCP
+	User *User
 }

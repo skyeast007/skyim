@@ -20,6 +20,8 @@ type Options struct {
 	TCPAddress string `toml:"tcp_address"`
 	//HTTPAddress http服务监听地址
 	HTTPAddress string `toml:"http_address"`
+	//StartHTTPServer 启动一个http服务，适用于单节点运行时,y表示(默认)启动,n表示不启动
+	StartHTTPServer string `toml:"start_http_server"`
 	//HTTPDocumentRoot http静态服务器绝对地址
 	HTTPDocumentRoot string `toml:"http_document_root"`
 	//RedisAddress redis连接地址
@@ -83,6 +85,9 @@ func NewOption() *Options {
 	}
 	if o.HTTPAddress == "" {
 		o.HTTPAddress = ":3002"
+	}
+	if o.StartHTTPServer == "" {
+		o.StartHTTPServer = "y"
 	}
 	if o.HTTPDocumentRoot == "" {
 		o.HTTPDocumentRoot = appPath + "/static"

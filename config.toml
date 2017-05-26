@@ -8,6 +8,8 @@ web_socket_address=":5000"
 tcp_address=":5001"
 # http服务监听地址
 http_address=":5002"
+#是否随启动一个web服务器,如果设置为false需要自行启动,y表示(默认)启动,n表示不启动
+start_http_server="y"
 # http静态服务器绝对地址 默认程序执行目录下的 static 目录
 #http_document_root=""
 # redis连接地址

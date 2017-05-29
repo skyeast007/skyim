@@ -14,6 +14,9 @@
 </head>
 <body>
   <h2>WebSocket Test</h2>
+  <textarea id="command" style="width:500px;height:100px"></textarea>
+
+  <input type="button" id="auth" value="发送">
   <div id="output"></div>
 <script type="text/javascript">
 var wsUri ="ws://127.0.0.1:5000";
@@ -40,24 +43,24 @@ function testWebSocket() {
 }
 
 function onOpen(evt) {
-    writeToScreen("CONNECTED");
+    writeToScreen("连接打开");
     for (var i = 0; i < 20; i++) {
-      console.log(1);
-      doSend(Math.random());
+      //console.log(1);
+      //doSend(Math.random());
     }
 }
 
 function onClose(evt) {
-    writeToScreen("DISCONNECTED");
+    writeToScreen("连接关闭");
 }
 
 function onMessage(evt) {
-    writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>');
-    websocket.close();
+    writeToScreen('<span style="color: blue;">收到消息: '+ evt.data+'</span>');
+    //websocket.close();
 }
 
 function onError(evt) {
-    writeToScreen('<span style="color: red;">ERROR:</span> '+ evt.data);
+    writeToScreen('<span style="color: red;">错误:</span> '+ evt.data);
 }
 
 function doSend(message) {
@@ -73,6 +76,11 @@ function writeToScreen(message) {
 }
 
 window.addEventListener("load", init, false);
+$("#auth").on("click",'',function(){
+  c=$("#command").val()
+  console.log(c);
+  doSend(c)
+})
 </script>
 
 </body>

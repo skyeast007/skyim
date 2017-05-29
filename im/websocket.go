@@ -36,6 +36,8 @@ func (w *Websocket) Handle(ws *websocket.Conn) {
 	im.ConnType = 1
 	im.ConnTime = time.Now().Unix()
 	im.ClientAddress = ws.RemoteAddr()
+	im.User = new(User)
+	im.User.Auth = new(Auth)
 	w.messageLoop(im)
 }
 
@@ -45,12 +47,30 @@ func (w *Websocket) messageLoop(im *Im) {
 	for {
 		var reply string
 		if err = websocket.Message.Receive(im.WebSocketConn, &reply); err != nil {
-			//runtime.Gosched()
 			continue
 		} else {
-			w.ctx.Log.Debug("收到消息...")
-			println(reply)
+			w.ctx.Log.Debug("收到消息..." + reply)
 			// TODO: 执行消息处理
+			request := im.ctx.Decode(reply)
+			if request.Command == "" {
+				im.WebsocketSend(im.ctx.Encode(4001, "未知的指令"))
+				continue
+			}
+			if !im.User.Auth.IsAuth && request.Command != "auth" {
+				im.WebsocketSend(im.ctx.Encode(4002, "未授权的访问"))
+				continue
+			}
+			w.handleMessage(request, im)
 		}
+	}
+}
+
+//handleMessage 消息处理
+func (w *Websocket) handleMessage(r context.Request, im *Im) {
+	switch r.Command {
+	case "auth":
+		im.User.Auth.Auth(im, r.Parameter)
+	default:
+		im.WebsocketSend(im.ctx.Encode(4003, "不支持的指令"))
 	}
 }

@@ -2,6 +2,7 @@ package im
 
 import (
 	"bufio"
+	"errors"
 	"net"
 	"sync"
 
@@ -54,4 +55,17 @@ type Im struct {
 	//通过TCP连接时建立此项
 	TCP  *TCP
 	User *User
+}
+
+//WebsocketSend 向客户端发送websocket消息
+func (i *Im) WebsocketSend(msg []byte) error {
+	if i.WebSocketConn == nil {
+		return errors.New("连接未建立")
+	}
+	return websocket.Message.Send(i.WebSocketConn, string(msg))
+}
+
+//TCPSend 向客户端发送tcp消息
+func (i *Im) TCPSend(msg string) {
+
 }

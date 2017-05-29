@@ -78,13 +78,13 @@ func NewOption() *Options {
 		// }
 	}
 	if o.WebSoctetAddress == "" {
-		o.WebSoctetAddress = ":3000"
+		o.WebSoctetAddress = ":5000"
 	}
 	if o.TCPAddress == "" {
-		o.TCPAddress = ":3001"
+		o.TCPAddress = ":5001"
 	}
 	if o.HTTPAddress == "" {
-		o.HTTPAddress = ":3002"
+		o.HTTPAddress = ":5002"
 	}
 	if o.StartHTTPServer == "" {
 		o.StartHTTPServer = "y"

@@ -1,0 +1,28 @@
+#日志等级 0:all,1:debug,2:info,3:warning,4:error,5:Fatal
+log_level=0
+#日志目录，默认std输出
+#log_path=''
+#websocket服务监听地址 "127.0.0.1:3000"
+web_socket_address=":5000"
+#TCP服务监听地址
+tcp_address=":5001"
+# http服务监听地址
+http_address=":5002"
+#是否随启动一个web服务器,如果设置为false需要自行启动,y表示(默认)启动,n表示不启动
+start_http_server="y"
+# http静态服务器绝对地址 默认程序执行目录下的 static 目录
+#http_document_root=""
+# redis连接地址
+redis_address="127.0.0.1:6379"
+# redis授权密码
+redis_auth ="xxxx"
+# 数据库类型
+database_type="mysql"
+# 数据库名称
+database_name="skyim"
+# 数据库用户名
+database_user="root"
+# 数据库密码
+database_password="root"
+# 数据库地址
+database_address="127.0.0.1:3306"

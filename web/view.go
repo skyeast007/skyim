@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"strings"
 
 	"im/context"
 )
@@ -20,7 +21,19 @@ func StartHTTPServer(ctx *context.Context) {
 //Service 请求处理
 func Service(h http.Handler, ctx *context.Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx.Log.Info("新请求:", r.URL.Path)
-		h.ServeHTTP(w, r)
+		ctx.Log.Info("新请求:" + r.URL.Path)
+		if strings.HasSuffix(r.URL.Path, ".") {
+			route(w, r, ctx)
+		} else {
+			h.ServeHTTP(w, r)
+		}
 	})
+}
+
+//route 对请求进行简单路由
+func route(w http.ResponseWriter, r *http.Request, ctx *context.Context) {
+	switch r.URL.Path {
+	case "/register":
+
+	}
 }

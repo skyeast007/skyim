@@ -1,6 +1,7 @@
 package context
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,7 +18,7 @@ func (t *Tool) GetAppDirectory() (string, error) {
 }
 
 //FileIsExist 判断一个文件是否存在
-func FileIsExist(file string) (bool, error) {
+func (t *Tool) FileIsExist(file string) (bool, error) {
 	_, err := os.Stat(file)
 	if err == nil {
 		return true, nil
@@ -26,4 +27,9 @@ func FileIsExist(file string) (bool, error) {
 		return false, nil
 	}
 	return true, err
+}
+
+//MapFillToStruct 将map数据填充到结构体中
+func (t *Tool) MapFillToStruct(data map[string]interface{}, container interface{}) error {
+	return errors.New("type")
 }

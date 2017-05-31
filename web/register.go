@@ -7,23 +7,6 @@ import (
 	"im/context"
 )
 
-//User 用户信息映射结构体
-type User struct {
-	ID         int64
-	Name       string
-	Account    string
-	Mobile     string
-	Sign       string
-	Password   string
-	Gender     int
-	Email      string
-	Avatar     string
-	Status     int
-	CreateTime int64 `xorm:"created"`
-	DeleteTime int64
-	UpdateTime int64 `xorm:"update"`
-}
-
 //Register 注册一名用户
 func Register(w http.ResponseWriter, r *http.Request, ctx *context.Context) bool {
 	if r.Method != "POST" {

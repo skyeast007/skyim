@@ -19,5 +19,9 @@ func NewDatabase(o *Options, l *Log) *Database {
 	if err != nil {
 		l.Fatal("数据库连接错误:", err)
 	}
+	//最大空闲连接数
+	DB.Engine.SetMaxIdleConns(10)
+	//打开的最大连接数
+	DB.Engine.SetMaxOpenConns(1000)
 	return DB
 }

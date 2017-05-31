@@ -2,6 +2,9 @@ package context
 
 import "encoding/json"
 
+//全局变量
+var ctx *Context
+
 //Response 客户端响应结构
 type Response struct {
 	Code int         `json:"code"`
@@ -21,19 +24,25 @@ type Context struct {
 	Tool    *Tool
 	Log     *Log
 	DB      *Database
+	Redis   *Redis
 	//Version 版本信息
 	Version string
 }
 
 //NewCtx 获取ctx
 func NewCtx() *Context {
-	c := new(Context)
-	c.Options = NewOption()
-	c.Tool = new(Tool)
-	c.Log = new(Log)
-	c.DB = NewDatabase(c.Options, c.Log)
-	c.Version = "1.0"
-	return c
+	if ctx == nil {
+		c := new(Context)
+		c.Options = NewOption()
+		c.Tool = new(Tool)
+		c.Log = new(Log)
+		c.DB = NewDatabase(c.Options, c.Log)
+		c.Redis = NewRedisPool(c.Options, c.Log)
+		c.Version = "1.0"
+
+		ctx = c
+	}
+	return ctx
 }
 
 //Encode 对数据进行json编码

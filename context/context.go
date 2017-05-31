@@ -20,6 +20,7 @@ type Context struct {
 	Options *Options
 	Tool    *Tool
 	Log     *Log
+	DB      *Database
 	//Version 版本信息
 	Version string
 }
@@ -30,6 +31,7 @@ func NewCtx() *Context {
 	c.Options = NewOption()
 	c.Tool = new(Tool)
 	c.Log = new(Log)
+	c.DB = NewDatabase(c.Options, c.Log)
 	c.Version = "1.0"
 	return c
 }

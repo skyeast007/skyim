@@ -16,7 +16,7 @@ start_http_server="y"
 redis_address="127.0.0.1:6379"
 # redis授权密码
 redis_auth ="xxxx"
-# 数据库类型
+# 数据库类型 目前仅支持mysql
 database_type="mysql"
 # 数据库名称
 database_name="skyim"

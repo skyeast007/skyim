@@ -9,7 +9,6 @@ CREATE TABLE `t_user` (
   `gender` tinyint(4) NOT NULL DEFAULT '0' COMMENT '性别，０未知，１男，２女',
   `email` varchar(64) DEFAULT '' COMMENT '邮箱',
   `avatar` varchar(128) DEFAULT '' COMMENT '用户头像路径，标准长度为１１８个字符',
-  `extattr` text COMMENT '用户扩展属性',
   `status` tinyint(4) DEFAULT NULL COMMENT '0正常，1冻结',
   `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '建立时的间戳',
   `delete_time` int(11) NOT NULL DEFAULT '0' COMMENT '标记删除，并记录删除时间',

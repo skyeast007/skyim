@@ -15,7 +15,7 @@ start_http_server="y"
 # redis连接地址
 redis_address="127.0.0.1:6379"
 # redis授权密码
-redis_auth ="xxxx"
+redis_auth ="root"
 # 数据库类型 目前仅支持mysql
 database_type="mysql"
 # 数据库名称

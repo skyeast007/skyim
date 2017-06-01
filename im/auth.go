@@ -1,6 +1,9 @@
 package im
 
-import "fmt"
+import (
+	"fmt"
+	"im/context/logic"
+)
 
 //Auth 授权信息
 type Auth struct {
@@ -12,5 +15,7 @@ type Auth struct {
 
 //Auth 授权
 func (a *Auth) Auth(im *Im, param interface{}) {
-	fmt.Println("授权参数", param)
+	User := new(logic.User)
+	user, err := User.GetUserInfoByAccount("tttlkkkl")
+	fmt.Println(user, err)
 }

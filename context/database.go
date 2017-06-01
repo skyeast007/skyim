@@ -2,6 +2,7 @@ package context
 
 import (
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
 )
 
@@ -19,6 +20,7 @@ func NewDatabase(o *Options, l *Log) *Database {
 	if err != nil {
 		l.Fatal("数据库连接错误:", err)
 	}
+	DB.Engine.SetMapper(core.GonicMapper{})
 	//最大空闲连接数
 	DB.Engine.SetMaxIdleConns(10)
 	//打开的最大连接数

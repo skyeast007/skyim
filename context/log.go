@@ -58,18 +58,9 @@ func (l *Log) Log(level int, info string, args ...interface{}) {
 	case Fatal:
 		levelString = "Fatal"
 	}
-
 	if level == Fatal {
-		if len(args) > 1 {
-			log.Fatalln(levelString, ":", info, "->", args)
-		} else {
-			log.Fatalln(levelString, ":", info)
-		}
+		log.Fatalln(levelString, ":", info, ".", args)
 	} else {
-		if len(args) > 1 {
-			log.Println(levelString, ":", info, "->", args)
-		} else {
-			log.Println(levelString, ":", info)
-		}
+		log.Println(levelString, ":", info, ".", args)
 	}
 }

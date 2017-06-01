@@ -10,39 +10,44 @@ import (
 
 //Redis redia连接对象容器
 type Redis struct {
-	Redis pools.Resource
+	Pool redisConn
 }
 
-//RedisConn 热第三连接池
-type RedisConn struct {
+//redisConn 第三连接池
+type redisConn struct {
 	redis.Conn
 }
 
-func (r RedisConn) Close() {
+func (r redisConn) Close() {
 	r.Conn.Close()
 }
 
 //Resource 返回一个redis连接池
 func NewRedisPool(o *Options, l *Log) *Redis {
 	p := pools.NewResourcePool(func() (pools.Resource, error) {
-		c, err := redis.Dial("tcp", o.RedisAddress)
-		return RedisConn{c}, err
+		var c redis.Conn
+		var err error
+		if o.RedisAuth != "" {
+			c, err = redis.Dial("tcp", o.RedisAddress, redis.DialPassword(o.RedisAuth))
+		} else {
+			c, err = redis.Dial("tcp", o.RedisAddress)
+		}
+		return redisConn{c}, err
 	}, 1, 2, time.Minute)
-	defer p.Close()
+	//defer p.Close()
 	ctx := context.TODO()
 	r, err := p.Get(ctx)
 	if err != nil {
-		l.Fatal("redis连接池初始化错误", err)
+		l.Fatal("Redis连接池初始化错误", err)
 	}
 	defer p.Put(r)
-	c := r.(RedisConn)
-	if o.RedisAuth != "" {
-		_, err = c.Do("auth", o.RedisAuth)
-		if err != nil {
-			l.Fatal("redis授权失败", err)
-		}
-	}
+	c := r.(redisConn)
 	redis := new(Redis)
-	redis.Redis = c
+	redis.Pool = c
 	return redis
+}
+
+//ScanStruct ScanStruct
+func (r *Redis) ScanStruct(src []interface{}, dest interface{}) error {
+	return redis.ScanStruct(src, dest)
 }

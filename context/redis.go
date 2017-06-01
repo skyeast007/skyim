@@ -1,6 +1,7 @@
 package context
 
 import (
+	"errors"
 	"time"
 
 	"github.com/garyburd/redigo/redis"
@@ -22,7 +23,7 @@ func (r redisConn) Close() {
 	r.Conn.Close()
 }
 
-//Resource 返回一个redis连接池
+//NewRedisPool 返回一个redis连接池
 func NewRedisPool(o *Options, l *Log) *Redis {
 	p := pools.NewResourcePool(func() (pools.Resource, error) {
 		var c redis.Conn
@@ -50,4 +51,23 @@ func NewRedisPool(o *Options, l *Log) *Redis {
 //ScanStruct ScanStruct
 func (r *Redis) ScanStruct(src []interface{}, dest interface{}) error {
 	return redis.ScanStruct(src, dest)
+}
+
+//HMSet hash 批量设置
+func (r *Redis) HMSet(key string, args interface{}) error {
+	if key == "" {
+		return errors.New("缺少key")
+	}
+	_, err := r.Pool.Do("HMSET", redis.Args{}.Add(key).AddFlat(args)...)
+	return err
+}
+
+//HGetAll hash 批量获取
+func (r *Redis) HGetAll(key string, container interface{}) error {
+	data, err := redis.Values(r.Pool.Do("HGETALL", key))
+	if err != nil {
+		return err
+	}
+	err = redis.ScanStruct(data, container)
+	return err
 }

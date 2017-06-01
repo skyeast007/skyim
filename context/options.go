@@ -104,9 +104,9 @@ func NewOption() *Options {
 		o.RedisAddress = "127.0.0.1:6379"
 	}
 	//这个是为了方便单元测试加入的
-	if o.RedisAuth == "" {
-		o.RedisAuth = "root"
-	}
+	// if o.RedisAuth == "" {
+	// 	o.RedisAuth = "root"
+	// }
 	if o.DatabaseType == "" {
 		o.DatabaseType = "mysql"
 	}
@@ -117,7 +117,7 @@ func NewOption() *Options {
 		o.DatabaseUser = "root"
 	}
 	if o.DatabasePassword == "" {
-		o.DatabasePassword = "root"
+		o.DatabasePassword = "m"
 	}
 	if o.DatabaseAddress == "" {
 		o.DatabaseAddress = "127.0.0.1:3306"

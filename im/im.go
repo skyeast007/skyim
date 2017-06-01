@@ -16,9 +16,16 @@ type User struct {
 	//UID 用户
 	UID int64
 	//Name 用户名
-	Name string
+	Name       string
+	Account    string
+	Mobile     string
+	Sign       string
+	Gender     int
+	Email      string
+	Avatar     string
+	CreateTime int64
 	//Auth 授权信息
-	Auth *Auth
+	auth *Auth
 }
 
 //TCP 连接信息

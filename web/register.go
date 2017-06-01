@@ -5,6 +5,7 @@ import (
 	"regexp"
 
 	"im/context"
+	"im/context/logic"
 )
 
 //Register 注册一名用户
@@ -25,7 +26,7 @@ func Register(w http.ResponseWriter, r *http.Request, ctx *context.Context) bool
 		w.Write([]byte("登录密码不能为空哦"))
 		return false
 	}
-	user := new(User)
+	user := new(logic.TUser)
 	user.Account = r.FormValue("account")
 	user.Name = "sky_" + r.FormValue("account")
 	return true

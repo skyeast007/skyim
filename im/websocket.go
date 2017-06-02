@@ -10,7 +10,10 @@ import (
 )
 
 //ConnectPool 客户端连接池
-var ConnectPool = make([]*Im, 0)
+var ConnectPool = make([]*Im, 10000)
+
+//clientConnectID 客户端连接标识
+var clientConnectID = uint64(0)
 
 //Websocket 连接服务
 type Websocket struct {
@@ -71,8 +74,12 @@ func (w *Websocket) handleMessage(r context.Request, im *Im) {
 	case "auth":
 		err := im.User.auth.Auth(im, r.Parameter)
 		if err != nil {
-			im.WebsocketSend(im.ctx.Encode(401, err.Error()))
+			im.WebsocketSend(im.ctx.Encode(4004, err.Error()))
 		}
+		ID := w.ctx.GUID.GetIncreaseID(&clientConnectID)
+		im.ID = int64(ID)
+		//加入连接池
+		ConnectPool[ID] = im
 		im.WebsocketSend(im.ctx.Encode(0, "success", im.User))
 	default:
 		im.WebsocketSend(im.ctx.Encode(4003, "不支持的指令"))

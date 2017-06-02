@@ -22,7 +22,7 @@ func Test_WebsocketClient(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if _, err = ws.Write([]byte("hello, world!\n")); err != nil {
+	if _, err = ws.Write([]byte("{\"command\":\"auth\",\"param\":{\"account\":\"tttlkkkl\",\"password\":\"skyim\"}}")); err != nil {
 		t.Error(err)
 	}
 	var msg = make([]byte, 512)

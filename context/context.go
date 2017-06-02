@@ -23,6 +23,7 @@ type Context struct {
 	Options *Options
 	Tool    *Tool
 	Log     *Log
+	GUID    *GUID
 	DB      *Database
 	Redis   *Redis
 	//Version 版本信息
@@ -36,6 +37,7 @@ func NewCtx() *Context {
 		c.Options = NewOption()
 		c.Tool = new(Tool)
 		c.Log = new(Log)
+		c.GUID = new(GUID)
 		c.DB = NewDatabase(c.Options, c.Log)
 		c.Redis = NewRedisPool(c.Options, c.Log)
 		c.Version = "1.0"

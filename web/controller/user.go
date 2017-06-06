@@ -2,9 +2,12 @@ package controller
 
 import (
 	"fmt"
+	"regexp"
+
+	"github.com/gorilla/sessions"
+
 	"im/context/logic"
 	"im/web/handle"
-	"regexp"
 )
 
 //User 用户restfull操作接口实现
@@ -18,13 +21,20 @@ func (u *User) Init(h *handle.HTTPRouteHandle) {
 
 //Get get请求获取一个用户信息
 func (u *User) Get(h *handle.HTTPRouteHandle) {
+	h.Session.Values["foo"] = "session test"
+	fmt.Println("---id:", h.Session.ID)
+	if err := sessions.Save(h.R, h.W); err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println("请求查询参数:", h.R.URL.Query(), "session set:", h.Session.Name())
+	fmt.Println("session value:", h.Session.Values)
 	h.W.Write([]byte("get"))
-	fmt.Println("请求查询参数:", h.R.URL.Query())
-	fmt.Println("路由参数:", h.R.FormValue("uid"))
 }
 
 //Post post请求，新建一个用户信息 即注册
 func (u *User) Post(h *handle.HTTPRouteHandle) {
+	fmt.Println("session:", h.Session.Values)
+	fmt.Println("session set:", h.Session.Name())
 	account := h.R.FormValue("account")
 	password := h.R.FormValue("password")
 	rePassword := h.R.FormValue("rePassword")

@@ -35,7 +35,6 @@ const (
 )
 
 func init() {
-
 }
 
 //Controller 控制器接口，所有适用此路由的控制器都必须实现本接口
@@ -62,6 +61,7 @@ type Route struct {
 	staticFileServer http.Handler
 	controllers      map[string]*atomRoute
 	ctx              *context.Context
+	Store            *handle.RediStore
 }
 
 //NewRoute 获取一个路由器实例
@@ -70,6 +70,7 @@ func NewRoute(ctx *context.Context) *Route {
 	r.staticFileServer = http.FileServer(http.Dir(ctx.Options.HTTPDocumentRoot))
 	r.ctx = ctx
 	r.controllers = make(map[string]*atomRoute)
+	r.Store, _ = handle.NewRediStore(10, "tcp", ctx.Options.RedisAddress, ctx.Options.RedisAuth, []byte("secret-key"))
 	return r
 }
 
@@ -200,6 +201,11 @@ func (R *Route) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			h.W = w
 			h.R = r
 			h.Ctx = R.getCtx()
+			//设置session
+			h.Session, err = R.Store.Get(r, "sky-im")
+			if err != nil {
+				R.getCtx().Log.Error("session初始化失败", err)
+			}
 			params := make([]reflect.Value, 1)
 			params[0] = reflect.ValueOf(h)
 			i := reflect.ValueOf(source.controller).MethodByName("Init")

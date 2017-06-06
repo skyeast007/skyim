@@ -2,10 +2,13 @@ package handle
 
 import (
 	"encoding/json"
-	"im/context"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"im/context"
+
+	"github.com/gorilla/sessions"
 )
 
 //json
@@ -22,9 +25,10 @@ type Response struct {
 
 //HTTPRouteHandle 路由处理
 type HTTPRouteHandle struct {
-	W   http.ResponseWriter
-	R   *http.Request
-	Ctx *context.Context
+	W       http.ResponseWriter
+	R       *http.Request
+	Ctx     *context.Context
+	Session *sessions.Session
 }
 
 //JSONResponse json响应

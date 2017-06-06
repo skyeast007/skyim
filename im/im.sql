@@ -12,7 +12,7 @@ CREATE TABLE `t_user` (
   `status` tinyint(4) DEFAULT NULL COMMENT '0正常，1冻结',
   `create_time` int(11) NOT NULL DEFAULT 0 COMMENT '建立时的间戳',
   `delete_time` int(11) NOT NULL DEFAULT 0 COMMENT '标记删除，并记录删除时间',
-  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_account_mobile_email` (`account`,`mobile`,`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户基本信息';

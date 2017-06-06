@@ -3,13 +3,14 @@ package web
 import (
 	"bytes"
 	"errors"
-	"fmt"
-	"im/context"
-	"im/web/controller"
 	"net/http"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
+
+	"im/context"
+	"im/web/handle"
 )
 
 const (
@@ -33,11 +34,6 @@ const (
 	TRACE = "TRACE"
 )
 
-//commonly used mime-types
-const (
-	applicationJSON = "application/json"
-)
-
 func init() {
 
 }
@@ -45,11 +41,11 @@ func init() {
 //Controller 控制器接口，所有适用此路由的控制器都必须实现本接口
 type Controller interface {
 	//init 在路由到控制器任何一个方法前都会先调用此方法
-	Init(w http.ResponseWriter, r *http.Request)
-	Get(w http.ResponseWriter, r *http.Request)
-	Post(w http.ResponseWriter, r *http.Request)
-	Put(w http.ResponseWriter, r *http.Request)
-	Delete(w http.ResponseWriter, r *http.Request)
+	Init(h *handle.HTTPRouteHandle)
+	Get(h *handle.HTTPRouteHandle)
+	Post(h *handle.HTTPRouteHandle)
+	Put(h *handle.HTTPRouteHandle)
+	Delete(h *handle.HTTPRouteHandle)
 }
 
 //atomRoute 原子路由
@@ -74,14 +70,13 @@ func NewRoute(ctx *context.Context) *Route {
 	r.staticFileServer = http.FileServer(http.Dir(ctx.Options.HTTPDocumentRoot))
 	r.ctx = ctx
 	r.controllers = make(map[string]*atomRoute)
-	r.AddController("user", new(controller.User), map[string]string{"GET": "/:uid/", "POST": "/:uid/"})
 	return r
 }
 
 //AddController 添加一个结构体
-func (s *Route) AddController(uri string, c Controller, param map[string]string) bool {
+func (R *Route) AddController(uri string, c Controller, param map[string]string) bool {
 	if uri == "" {
-		s.ctx.Log.Error("路由添加错误，缺少确定的URI")
+		R.ctx.Log.Error("路由添加错误，缺少确定的URI")
 		return false
 	}
 	atom := new(atomRoute)
@@ -108,35 +103,34 @@ func (s *Route) AddController(uri string, c Controller, param map[string]string)
 		pattern := strings.Join(parts, "/")
 		regex, regexErr := regexp.Compile(pattern)
 		if regexErr != nil {
-			s.ctx.Log.Error("错误的路由正则", regexErr)
+			R.ctx.Log.Error("错误的路由正则", regexErr)
 			return false
 		}
-		inx, err := s.getIndexByMothed(k)
+		inx, err := R.getIndexByMothed(k)
 		if err != nil {
-			s.ctx.Log.Error("路由初始化错误:", err)
+			R.ctx.Log.Error("路由初始化错误:", err)
 			return false
 		}
 		atom.regex[inx] = regex
 		atom.params[inx] = params
 	}
-	fmt.Println(uri)
-	s.controllers[uri] = atom
+	R.controllers[uri] = atom
 	return true
 }
 
 //获取索引
-func (s *Route) getIndexByMothed(mothed string) (int, error) {
+func (R *Route) getIndexByMothed(mothed string) (int, error) {
 	var index = -1
 	var err error
 	err = nil
 	switch strings.ToUpper(mothed) {
-	case "GET":
+	case GET:
 		index = 0
-	case "POST":
+	case POST:
 		index = 1
-	case "PUT":
+	case PUT:
 		index = 2
-	case "DELETE":
+	case DELETE:
 		index = 3
 	default:
 		err = errors.New("不支持的方法:" + mothed)
@@ -158,7 +152,7 @@ func (R *Route) FirstToUpper(str string) string {
 }
 
 //HTTPStatus HTTP状态返回
-func (s *Route) HTTPStatus(w http.ResponseWriter, code int) {
+func (R *Route) HTTPStatus(w http.ResponseWriter, code int) {
 	response := ""
 	switch code {
 	case 404:
@@ -170,42 +164,62 @@ func (s *Route) HTTPStatus(w http.ResponseWriter, code int) {
 	w.Write([]byte(response))
 }
 
+//getCtx 获得总控模块
+func (R *Route) getCtx() *context.Context {
+	return R.ctx
+}
+
 //ServeHTTP HTTP服务核心处理函数
-func (s *Route) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.ctx.Log.Debug("新请求:" + r.URL.Path)
+func (R *Route) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	R.ctx.Log.Debug("新请求:" + r.Method + ":" + r.URL.Path)
 	if len(r.URL.Path) > 0 && !strings.HasSuffix(r.URL.Path, ".") {
 		split := strings.Split(r.URL.Path, "/")
 		//请求资源为空
 		if split[1] == "" {
-			s.HTTPStatus(w, 404)
+			R.HTTPStatus(w, 404)
 			return
 		}
 		//检查请求的资源是否已定义
-		if source, ok := s.controllers[split[1]]; ok {
-			index, err := s.getIndexByMothed(r.Method)
+		if source, ok := R.controllers[split[1]]; ok {
+			index, err := R.getIndexByMothed(r.Method)
 			if err != nil {
-				s.HTTPStatus(w, 400)
+				R.HTTPStatus(w, 400)
 				return
 			}
 			//检查是否需要进行路由参数匹配
 			if source.regex[index] != nil && source.regex[index].MatchString(r.URL.Path) && len(source.params[index]) > 0 {
 				matches := source.regex[index].FindStringSubmatch(r.URL.Path)
-				for i, match := range matches[2:] {
-					r.URL.Query().Add(source.params[index][i], match)
+				values := r.URL.Query()
+				for i, match := range matches[1:] {
+					values.Add(source.params[index][i], match)
 				}
+				r.URL.RawQuery = url.Values(values).Encode() + "&" + r.URL.RawQuery
 			}
-			f := reflect.ValueOf(source.controller).MethodByName(r.Method)
+			method := R.FirstToUpper(r.Method)
+			h := new(handle.HTTPRouteHandle)
+			h.W = w
+			h.R = r
+			h.Ctx = R.getCtx()
+			params := make([]reflect.Value, 1)
+			params[0] = reflect.ValueOf(h)
+			i := reflect.ValueOf(source.controller).MethodByName("Init")
+			//调用初始化函数
+			if i.IsValid() {
+				i.Call(params)
+			}
+			//调用业务处理函数
+			f := reflect.ValueOf(source.controller).MethodByName(method)
 			if f.IsValid() {
-				f.Call(nil)
+				f.Call(params)
 			} else {
-				s.ctx.Log.Error("不存在的处理方法:" + r.Method)
-				s.HTTPStatus(w, 404)
+				R.ctx.Log.Error("不存在的处理方法:" + method)
+				R.HTTPStatus(w, 404)
 			}
 		} else {
-			s.HTTPStatus(w, 404)
+			R.HTTPStatus(w, 404)
 			return
 		}
 	} else {
-		s.staticFileServer.ServeHTTP(w, r)
+		R.staticFileServer.ServeHTTP(w, r)
 	}
 }

@@ -40,7 +40,7 @@ func (a *Auth) Auth(im *Im, param interface{}) error {
 		return errors.New("缺少密码信息")
 	}
 	User := new(logic.TUser)
-	has, _ := User.GetUserInfoByAccount(account)
+	has := User.GetUserInfoByAccount(account)
 	if !has {
 		return errors.New("不存在的用户信息")
 	}

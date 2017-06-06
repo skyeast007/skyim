@@ -2,6 +2,7 @@ package im
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"net"
 	"sync"
@@ -62,6 +63,43 @@ type Im struct {
 	//通过TCP连接时建立此项
 	TCP  *TCP
 	User *User
+}
+
+//Response im客户端响应结构
+type Response struct {
+	Code int         `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
+}
+
+//Request im客户端请求定义
+type Request struct {
+	Command   string      `json:"command"`
+	Parameter interface{} `json:"param"`
+}
+
+//Encode 对数据进行json编码
+func (i *Im) Encode(code int, msg string, data ...interface{}) []byte {
+	response := new(Response)
+	response.Code = code
+	response.Msg = msg
+	response.Data = data
+	str, err := json.Marshal(*response)
+	if err != nil {
+		i.ctx.Log.Error("json编码错误:", err)
+		str = []byte("")
+	}
+	return str
+}
+
+//Decode 客户端消息json解码
+func (i *Im) Decode(data string) Request {
+	var request Request
+	err := json.Unmarshal([]byte(data), &request)
+	if err != nil {
+		i.ctx.Log.Error("json解码错误:", err)
+	}
+	return request
 }
 
 //WebsocketSend 向客户端发送websocket消息

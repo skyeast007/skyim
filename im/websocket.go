@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"im/context"
+	"im/im"
 
 	"golang.org/x/net/websocket"
 )
@@ -54,13 +55,13 @@ func (w *Websocket) messageLoop(im *Im) {
 		} else {
 			w.ctx.Log.Debug("收到消息..." + reply)
 			// TODO: 执行消息处理
-			request := im.ctx.Decode(reply)
+			request := im.Decode(reply)
 			if request.Command == "" {
-				im.WebsocketSend(im.ctx.Encode(4001, "未知的指令"))
+				im.WebsocketSend(im.Encode(4001, "未知的指令"))
 				continue
 			}
 			if !im.User.auth.IsAuth && request.Command != "auth" {
-				im.WebsocketSend(im.ctx.Encode(4002, "未授权的访问"))
+				im.WebsocketSend(im.Encode(4002, "未授权的访问"))
 				continue
 			}
 			w.handleMessage(request, im)
@@ -69,7 +70,7 @@ func (w *Websocket) messageLoop(im *Im) {
 }
 
 //handleMessage 消息处理
-func (w *Websocket) handleMessage(r context.Request, im *Im) {
+func (w *Websocket) handleMessage(r im.Request, im *Im) {
 	switch r.Command {
 	case "auth":
 		err := im.User.auth.Auth(im, r.Parameter)
@@ -80,8 +81,8 @@ func (w *Websocket) handleMessage(r context.Request, im *Im) {
 		im.ID = int64(ID)
 		//加入连接池
 		ConnectPool[ID] = im
-		im.WebsocketSend(im.ctx.Encode(0, "success", im.User))
+		im.WebsocketSend(im.Encode(0, "success", im.User))
 	default:
-		im.WebsocketSend(im.ctx.Encode(4003, "不支持的指令"))
+		im.WebsocketSend(im.Encode(4003, "不支持的指令"))
 	}
 }

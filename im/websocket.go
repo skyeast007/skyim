@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"im/context"
-	"im/im"
 
 	"golang.org/x/net/websocket"
 )
@@ -70,12 +69,12 @@ func (w *Websocket) messageLoop(im *Im) {
 }
 
 //handleMessage 消息处理
-func (w *Websocket) handleMessage(r im.Request, im *Im) {
+func (w *Websocket) handleMessage(r Request, im *Im) {
 	switch r.Command {
 	case "auth":
 		err := im.User.auth.Auth(im, r.Parameter)
 		if err != nil {
-			im.WebsocketSend(im.ctx.Encode(4004, err.Error()))
+			im.WebsocketSend(im.Encode(4004, err.Error()))
 		}
 		ID := w.ctx.GUID.GetIncreaseID(&clientConnectID)
 		im.ID = int64(ID)

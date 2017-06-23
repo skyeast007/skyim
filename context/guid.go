@@ -22,9 +22,9 @@ const (
 	WorkerIDShift = SenquenceBits
 	//TimeStampShift 参照
 	TimeStampShift = SenquenceBits + WorkerIDBits
-	//SequenceMask 最大序列号值 4095
+	//SequenceMask 最大序列号值 4095(4096个)
 	SequenceMask = int64(-1) ^ (int64(-1) << SenquenceBits)
-	//MaxWorker 最大客户端标志值 1023
+	//MaxWorker 最大客户端标志值 1023(1024个)
 	MaxWorker = int64(-1) ^ (int64(-1) << WorkerIDBits)
 )
 
@@ -83,7 +83,7 @@ func (g *GUID) NextID() (int64, error) {
 
 //timeStamp 获取一个可用时间基数
 func (g *GUID) timeStamp(lastTimeStamp int64) int64 {
-	ts := time.Now().UnixNano()
+	ts := g.milliseconds()
 	for {
 		if ts < lastTimeStamp {
 			ts = g.milliseconds()
